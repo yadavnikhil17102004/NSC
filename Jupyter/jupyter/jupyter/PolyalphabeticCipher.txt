@@ -1,0 +1,44 @@
+
+
+    def encrypt(plaintext, key):
+        encrypted = ""
+        key = key.upper()
+        key_index = 0
+        
+        for char in plaintext.upper():
+            if char.isalpha():
+                shift = ord(key[key_index]) - ord('A')  
+                encrypted += chr((ord(char) - ord('A') + shift) % 26 + ord('A'))
+                key_index = (key_index + 1) % len(key) 
+            else:
+                encrypted += char 
+        
+        return encrypted
+
+    def decrypt(ciphertext, key):
+        """Decrypt the ciphertext using the key."""
+        decrypted = ""
+        key = key.upper()
+        key_index = 0
+        
+        for char in ciphertext.upper():
+            if char.isalpha(): 
+                shift = ord(key[key_index]) - ord('A') 
+                decrypted += chr((ord(char) - ord('A') - shift) % 26 + ord('A'))
+                key_index = (key_index + 1) % len(key) 
+            else:
+                decrypted += char 
+        
+        return decrypted
+
+    plaintext = "HELLO WORLD"
+    key = "KEY"
+
+    ciphertext = encrypt(plaintext, key)
+    print("Encrypted:", ciphertext)
+
+    decrypted_text = decrypt(ciphertext, key)
+    print("Decrypted:", decrypted_text)
+
+    Encrypted: RIJVS UYVJN
+    Decrypted: HELLO WORLD

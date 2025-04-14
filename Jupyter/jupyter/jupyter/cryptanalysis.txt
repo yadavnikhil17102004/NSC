@@ -1,0 +1,48 @@
+
+
+    s_box = [
+        0x0c, 0x4, 0x6, 0x2,
+        0x0a, 0x5, 0xb, 0x9,
+        0xe, 0x8, 0xd, 0x7,
+        0x0, 0x3, 0xf, 0x1
+    ]
+
+    linear_approximation_table = [
+        [0, 1, 0, 0],
+        [0, 0, 0, 1],
+        [0, 1, 1, 0],
+        [0, 0, 1, 1],
+        [0, 1, 1, 1],
+        [0, 0, 1, 0],
+        [1, 1, 0, 0],
+        [1, 0, 0, 1]
+    ]
+
+    def linear_cryptanalysis():
+        count = {}
+
+        for i in range(16):
+            for j in range(16):
+                in_pairs = [(i >> k) & 1 for k in range(4)]
+                out_pairs = [(s_box[j] >> k) & 1 for k in range(4)]
+
+                for l in range(len(linear_approximation_table)):
+                    inner_product = sum(in_pairs[k] * linear_approximation_table[l][k] for k in range(4)) % 2
+                    if inner_product in count:
+                        count[inner_product] += 1
+                    else:
+                        count[inner_product] = 1
+
+        max_count = max(count.values())
+        probable_keys = [key for key, value in count.items() if value == max_count]
+
+        return probable_keys
+
+    def main():
+        keys = linear_cryptanalysis()
+        print("Most probable key(s) found by linear cryptanalysis:", keys)
+
+    if __name__ == "__main__":
+        main()
+
+    Most probable key(s) found by linear cryptanalysis: [0, 1]

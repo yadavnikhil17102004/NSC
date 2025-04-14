@@ -1,0 +1,119 @@
+
+
+    pip install pycryptodome
+
+    Requirement already satisfied: pycryptodome in c:\users\yash\appdata\local\programs\python\python312\lib\site-packages (3.22.0)
+    Note: you may need to restart the kernel to use updated packages.
+
+    from Crypto.Cipher import IDEA
+    from Crypto.Random import get_random_bytes
+    from Crypto.Util.Padding import pad, unpad
+
+    ---------------------------------------------------------------------------
+    ImportError                               Traceback (most recent call last)
+    Cell In[16], line 1
+    ----> 1 from Crypto.Cipher import IDEA
+          2 from Crypto.Random import get_random_bytes
+          3 from Crypto.Util.Padding import pad, unpad
+
+    ImportError: cannot import name 'IDEA' from 'Crypto.Cipher' (C:\Users\Yash\AppData\Local\Programs\Python\Python312\Lib\site-packages\Crypto\Cipher\__init__.py)
+
+    def generate_key():
+        return get_random_bytes(16)
+
+    def encrypt_block(block, key):
+        cipher = IDEA.new(key[:16], IDEA.MODE_ECB)
+        padded_block = pad(block, IDEA.block_size)
+        return cipher.encrypt(padded_block)
+        
+
+    def decrypt_block(encrypted_block, key):
+        cipher = IDEA.new(key[:16], IDEA.MODE_ECB)
+        decrypted_data = cipher.decrypt(encrypted_block)
+        return unpad(decrypted_data, IDEA.block_size)
+
+    def main():
+        key = generate_key()
+        print("Generated Key:", key.hex())
+        plaintext = b'Hello World!'
+        print("Plaintext:", plaintext)
+        encrypted = encrypt_block(plaintext, key)
+        print("Encrypted (hex):", encrypted.hex())
+        decrypted = decrypt_block(encrypted, key)
+        print("Decrypted:", decrypted)
+        
+
+    if __name__ == "__main__":
+        main()
+        
+
+    ---------------------------------------------------------------------------
+    NameError                                 Traceback (most recent call last)
+    Cell In[14], line 2
+          1 if __name__ == "__main__":
+    ----> 2     main()
+
+    Cell In[13], line 2, in main()
+          1 def main():
+    ----> 2     key = generate_key()
+          3     print("Generated Key:", key.hex())
+          4     plaintext = b'Hello World!'
+
+    NameError: name 'generate_key' is not defined
+
+    # in case without import
+
+    def multiply(a, b):
+        if a == 0:
+            return (0x10000 - b) % 0x10001
+        elif b == 0:
+            return (0x10000 - a) % 0x10001
+        else:
+            result = (a * b) % 0x10001
+            if result == 0x10001:
+                result = 0
+            return result
+
+    def mod_inverse(a):
+        if a <= 1:
+            return a
+        t1, t2 = 0, 1
+        n = 0x10001
+        while a > 1:
+            q = n // a
+            n, a = a, n % a
+            t1, t2 = t2, t1 - q * t2
+        if t2 < 0:
+            t2 += 0x10001
+        return t2
+
+    def idea_encrypt(key, block):
+        keys = [key[i:i + 2] for i in range(0, 16, 2)]
+        x = int.from_bytes(block[:2], byteorder='big')
+        y = int.from_bytes(block[2:], byteorder='big')
+        for k in keys[:8]:
+            k_val = int.from_bytes(k, byteorder='big')
+            x = multiply(x, k_val)
+            y = (y + int.from_bytes(k, byteorder='big')) % 0x10000
+        return x.to_bytes(2, byteorder='big') + y.to_bytes(2, byteorder='big')
+
+    def idea_decrypt(key, block):
+        keys = [key[i:i + 2] for i in range(0, 16, 2)]
+        x = int.from_bytes(block[:2], byteorder='big')
+        y = int.from_bytes(block[2:], byteorder='big')
+        for k in reversed(keys[:8]):
+            k_val = int.from_bytes(k, byteorder='big')
+            x = multiply(x, mod_inverse(k_val))
+            y = (y - int.from_bytes(k, byteorder='big')) % 0x10000
+        return x.to_bytes(2, byteorder='big') + y.to_bytes(2, byteorder='big')
+
+    # Example usage:
+    key = b'\x01\x23\x45\x67\x89\xAB\xCD\xEF\xFE\xDC\xBA\x98\x76\x54\x32\x10'
+    block = b'1234'
+    ciphertext = idea_encrypt(key, block)
+    print(f"Ciphertext: {ciphertext}")
+    decrypted = idea_decrypt(key, ciphertext)
+    print(f"Decrypted: {decrypted}")
+
+    Ciphertext: b'\xa6\xe830'
+    Decrypted: b'1234'

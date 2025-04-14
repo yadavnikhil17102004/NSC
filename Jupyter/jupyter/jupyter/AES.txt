@@ -1,0 +1,44 @@
+
+
+    from Crypto.Cipher import AES
+    from Crypto.Random import get_random_bytes
+
+    def pkcs7_pad(msg, block_size):
+        padding_length = block_size - (len(msg) % block_size)
+        padding = bytes([padding_length] * padding_length)
+        return msg + padding
+
+    def pkcs7_unpad(padded_msg):
+        padding_length = padded_msg[-1]
+        return padded_msg[:-padding_length]
+
+    def encrypt(msg, key):
+        cipher = AES.new(key, AES.MODE_ECB)
+        msg_padded = pkcs7_pad(msg, AES.block_size)
+        ct = cipher.encrypt(msg_padded)
+        return ct
+
+    def decrypt(ct, key):
+        cipher = AES.new(key, AES.MODE_ECB)
+        pt_padded = cipher.decrypt(ct)
+        pt = pkcs7_unpad(pt_padded)
+        return pt
+
+    def main():
+        key = get_random_bytes(16)
+        message = input("Enter the message : ")
+        msg = message.encode()
+
+        ct = encrypt(msg, key)
+        print(f"AES encryption for {msg} is: {ct.hex()}")
+
+        pt = decrypt(ct, key)
+        print(f"AES decryption for {ct.hex()} is: {pt.decode()}")
+
+    if __name__ == "__main__":
+        main()
+
+    Enter the message :  Success
+
+    AES encryption for b'Success' is: 8d5c19d8ee879ca27870f7338321ac2e
+    AES decryption for 8d5c19d8ee879ca27870f7338321ac2e is: Success

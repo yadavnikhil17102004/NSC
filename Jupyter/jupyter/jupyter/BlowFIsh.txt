@@ -1,0 +1,33 @@
+
+
+    from Crypto.Cipher import Blowfish
+    from Crypto.Random import get_random_bytes
+    from Crypto.Util.Padding import pad, unpad
+
+    def encrypt_message(key, plaintext):
+        cipher = Blowfish.new(key, Blowfish.MODE_ECB)
+        padded_text = pad(plaintext, Blowfish.block_size)
+        ciphertext = cipher.encrypt(padded_text)
+        return ciphertext
+        
+
+    def decrypt_message(key, ciphertext):
+        cipher = Blowfish.new(key, Blowfish.MODE_ECB)
+        decrypted = cipher.decrypt(ciphertext)
+        return unpad(decrypted, Blowfish.block_size)
+        
+
+    def main():
+        key = get_random_bytes(16)
+        plaintext = b"Hello, Blowfish!"
+        ciphertext = encrypt_message(key, plaintext)
+        print("Encrypted message:", ciphertext.hex())
+        decrypted_message = decrypt_message(key, ciphertext)
+        print("Decrypted message:", decrypted_message.decode())
+        
+
+    if __name__ == "__main__":
+        main()
+
+    Encrypted message: 18c2ecc5751bab5bc8cf1247c1961ee88161fa8632004577
+    Decrypted message: Hello, Blowfish!

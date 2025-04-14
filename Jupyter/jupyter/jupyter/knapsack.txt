@@ -1,0 +1,76 @@
+
+
+    from random import randint
+    from math import gcd
+
+    def generate_superincreasing_sequence(length):
+        sequence = [randint(1, 10)]
+        for _ in range(length - 1):
+            sequence.append(sum(sequence) + randint(1, 10))
+        return sequence
+
+    def generate_modulus(sequence):
+        return sum(sequence) + randint(1, 10)
+
+    def generate_multiplier(modulus):
+        while True:
+            multiplier = randint(2, modulus - 1)
+            if gcd(multiplier, modulus) == 1:
+                return multiplier
+
+    def generate_public_key(sequence, modulus, multiplier):
+        return [(elem * multiplier) % modulus for elem in sequence]
+
+    def mod_inverse(a, m):
+        m0, x0, x1 = m, 0, 1
+        while a > 1:
+            q = a // m
+            a, m = m, a % m
+            x0, x1 = x1 - q * x0, x0
+        return x1 + m0 if x1 < 0 else x1
+
+    def encrypt_message(message, public_key):
+        binary_message = ''.join(format(ord(char), '08b') for char in message)
+        encrypted_blocks = []
+        for i in range(0, len(binary_message), len(public_key)):
+            block = binary_message[i:i + len(public_key)]
+            block += '0' * (len(public_key) - len(block))
+            encrypted_blocks.append(sum(int(bit) * public_key[j] for j, bit in enumerate(block)))
+        return encrypted_blocks
+
+    def decrypt_message(encrypted_blocks, private_key, multiplier_inverse, modulus):
+        decrypted_bits = ''
+        for block in encrypted_blocks:
+            c_prime = (block * multiplier_inverse) % modulus
+            bits = ''
+            for w in reversed(private_key):
+                if c_prime >= w:
+                    bits = '1' + bits
+                    c_prime -= w
+                else:
+                    bits = '0' + bits
+            decrypted_bits += bits
+        chars = [chr(int(decrypted_bits[i:i+8], 2)) for i in range(0, len(decrypted_bits), 8)]
+        return ''.join(chars).rstrip('\x00')
+
+    def main():
+        length = 8
+        private_key = generate_superincreasing_sequence(length)
+        modulus = generate_modulus(private_key)
+        multiplier = generate_multiplier(modulus)
+        public_key = generate_public_key(private_key, modulus, multiplier)
+        multiplier_inverse = mod_inverse(multiplier, modulus)
+
+        message = "Hello!"
+        print("Original message:", message)
+        encrypted = encrypt_message(message, public_key)
+        print("Encrypted:", encrypted)
+        decrypted = decrypt_message(encrypted, private_key, multiplier_inverse, modulus)
+        print("Decrypted:", decrypted)
+
+    if __name__ == "__main__":
+        main()
+
+    Original message: Hello!
+    Encrypted: [2189, 3710, 4184, 4184, 5735, 1579]
+    Decrypted: Hello!

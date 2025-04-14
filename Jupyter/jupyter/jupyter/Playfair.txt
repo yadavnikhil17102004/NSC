@@ -1,0 +1,116 @@
+
+
+    def create_key_matrix(key):
+        alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+        key = "".join(dict.fromkeys(key.upper().replace("J", "I") + alphabet))  # Remove duplicates
+        return [list(key[i:i+5]) for i in range(0, 25, 5)]
+
+    def find_position(matrix, char):
+        for row in range(5):
+            for col in range(5):
+                if matrix[row][col] == char:
+                    return row, col
+        return None, None
+
+    def encrypt_pair(pair, matrix):
+        r1, c1 = find_position(matrix, pair[0])
+        r2, c2 = find_position(matrix, pair[1])
+        if r1 == r2:  # Same row
+            return matrix[r1][(c1 + 1) % 5] + matrix[r2][(c2 + 1) % 5]
+        elif c1 == c2:  # Same column
+            return matrix[(r1 + 1) % 5][c1] + matrix[(r2 + 1) % 5][c2]
+        else:  # Rectangle swap
+            return matrix[r1][c2] + matrix[r2][c1]
+
+    def playfair_encrypt(plaintext, key):
+        matrix = create_key_matrix(key)
+        plaintext = plaintext.upper().replace("J", "I").replace(" ", "")
+        pairs = []
+        i = 0
+        while i < len(plaintext):
+            a = plaintext[i]
+            b = plaintext[i + 1] if i + 1 < len(plaintext) else 'X'
+            if a == b:
+                pairs.append(a + 'X')
+                i += 1
+            else:
+                pairs.append(a + b)
+                i += 2
+        ciphertext = "".join(encrypt_pair(pair, matrix) for pair in pairs)
+        return ciphertext
+
+    # Example Usage
+    key = "KEYWORD"
+    plaintext = "HELLO WORLD"
+    ciphertext = playfair_encrypt(plaintext, key)
+    print("Ciphertext:", ciphertext)
+
+    Ciphertext: GYIZSCOKCFBU
+
+    # encription na ddecription 
+    def create_key_matrix(key):
+        alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+        key = "".join(dict.fromkeys(key.upper().replace("J", "I") + alphabet))  # Remove duplicates
+        return [list(key[i:i+5]) for i in range(0, 25, 5)]
+
+    def find_position(matrix, char):
+        for row in range(5):
+            for col in range(5):
+                if matrix[row][col] == char:
+                    return row, col
+        return None, None
+
+    def encrypt_pair(pair, matrix):
+        r1, c1 = find_position(matrix, pair[0])
+        r2, c2 = find_position(matrix, pair[1])
+        if r1 == r2:  # Same row
+            return matrix[r1][(c1 + 1) % 5] + matrix[r2][(c2 + 1) % 5]
+        elif c1 == c2:  # Same column
+            return matrix[(r1 + 1) % 5][c1] + matrix[(r2 + 1) % 5][c2]
+        else:  # Rectangle swap
+            return matrix[r1][c2] + matrix[r2][c1]
+
+    def decrypt_pair(pair, matrix):
+        r1, c1 = find_position(matrix, pair[0])
+        r2, c2 = find_position(matrix, pair[1])
+        if r1 == r2:  # Same row
+            return matrix[r1][(c1 - 1) % 5] + matrix[r2][(c2 - 1) % 5]
+        elif c1 == c2:  # Same column
+            return matrix[(r1 - 1) % 5][c1] + matrix[(r2 - 1) % 5][c2]
+        else:  # Rectangle swap
+            return matrix[r1][c2] + matrix[r2][c1]
+
+    def playfair_cipher(text, key, mode="encrypt"):
+        matrix = create_key_matrix(key)
+        text = text.upper().replace("J", "I").replace(" ", "")
+        pairs = []
+        i = 0
+        while i < len(text):
+            a = text[i]
+            b = text[i + 1] if i + 1 < len(text) else 'X'
+            if a == b:
+                pairs.append(a + 'X')
+                i += 1
+            else:
+                pairs.append(a + b)
+                i += 2
+        if mode == "encrypt":
+            result = "".join(encrypt_pair(pair, matrix) for pair in pairs)
+        elif mode == "decrypt":
+            result = "".join(decrypt_pair(pair, matrix) for pair in pairs)
+        return result
+
+    # Example Usage
+    key = "KEYWORD"
+    plaintext = "HELLO WORLD"
+
+    # Encrypt
+    ciphertext = playfair_cipher(plaintext, key, mode="encrypt")
+    print("Ciphertext:", ciphertext)
+
+    # Decrypt
+    decrypted_text = playfair_cipher(ciphertext, key, mode="decrypt")
+    print("Decrypted Text:", decrypted_text)
+
+    Ciphertext: GYIZSCOKCFBU
+    Decrypted Text: HELXLOWORLDX

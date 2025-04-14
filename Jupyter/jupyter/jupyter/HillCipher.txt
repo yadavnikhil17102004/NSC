@@ -1,0 +1,32 @@
+
+
+    import numpy as np
+
+    def text_to_numbers(text):
+        return [ord(char) - ord('A') for char in text.upper()]
+
+    def numbers_to_text(numbers):
+        return ''.join(chr(num + ord('A')) for num in numbers)
+
+    def hill_encrypt(plain_text, key_matrix):
+        if len(plain_text) % 2 != 0:
+            plain_text += 'X' 
+
+        text_numbers = text_to_numbers(plain_text)
+        
+        cipher_numbers = []
+        for i in range(0, len(text_numbers), 2):
+            pair = np.dot(key_matrix, text_numbers[i:i + 2]) % 26
+            cipher_numbers.extend(pair)
+        
+        return numbers_to_text(cipher_numbers)
+
+    key_matrix = np.array([[3, 3], [2, 5]]) 
+    plain_text = "HELLO"
+
+    cipher_text = hill_encrypt(plain_text, key_matrix)
+    print("Original Text:", plain_text)
+    print("Encrypted Text:", cipher_text)
+
+    Original Text: HELLO
+    Encrypted Text: HIOZHN

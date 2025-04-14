@@ -1,0 +1,19 @@
+
+
+    def encrypt(message, key):
+        return ''.join(chr(ord(m) ^ ord(k)) for m, k in zip(message, key))
+
+    def decrypt(cipher_text, key):
+        return ''.join(chr(ord(c) ^ ord(k)) for c, k in zip(cipher_text, key))
+
+    message = "HELLO"
+    key = "XMCKL" 
+
+    cipher_text = encrypt(message, key)
+    print("Cipher Text:", cipher_text)
+
+    decrypted_message = decrypt(cipher_text, key)
+    print("Decrypted Message:", decrypted_message)
+
+    Cipher Text: 
+    Decrypted Message: HELLO

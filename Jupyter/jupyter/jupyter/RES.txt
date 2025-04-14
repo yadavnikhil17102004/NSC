@@ -1,0 +1,50 @@
+
+
+    import math
+
+    def gcd(a, b):
+        while b:
+            a, b = b, a % b
+        return a
+
+    def mod_inverse(e, phi):
+        for d in range(1, phi):
+            if (e * d) % phi == 1:
+                return d
+        return None
+
+    def generate_keys():
+        p = 61 
+        q = 53 
+        n = p * q
+        phi = (p - 1) * (q - 1)
+        
+        e = 17
+        while gcd(e, phi) != 1:
+            e += 1
+
+        d = mod_inverse(e, phi)
+        
+        return (e, n), (d, n)
+
+    def encrypt(public_key, plaintext):
+        e, n = public_key
+        cipher_text = [(ord(char) ** e) % n for char in plaintext]
+        return cipher_text
+
+    def decrypt(private_key, cipher_text):
+        d, n = private_key
+        decrypted_text = ''.join([chr((char ** d) % n) for char in cipher_text])
+        return decrypted_text
+
+    public_key, private_key = generate_keys()
+    plaintext = "HELLO"
+
+    cipher_text = encrypt(public_key, plaintext)
+    print("Cipher Text:", cipher_text)
+
+    decrypted_text = decrypt(private_key, cipher_text)
+    print("Decrypted Text:", decrypted_text)
+
+    Cipher Text: [3000, 28, 2726, 2726, 1307]
+    Decrypted Text: HELLO

@@ -1,0 +1,58 @@
+
+
+    from Crypto.PublicKey import RSA
+    from Crypto.Random import get_random_bytes
+    from Crypto.Cipher import PKCS1_OAEP
+
+    def generate_large_prime():
+        # RSA key generation to derive large prime numbers
+        key = RSA.generate(2048)
+        return key.p, key.q
+
+    def calculate_totient(p, q):
+        return (p - 1) * (q - 1)
+
+    def generate_keys(p, q):
+        n = p * q
+        totient = calculate_totient(p, q)
+        e = 65537  # Common choice for e
+        d = pow(e, -1, totient)  # Modular inverse
+        public_key = RSA.construct((n, e))
+        private_key = RSA.construct((n, e, d))
+        return public_key, private_key
+
+    def encrypt_message(message, public_key):
+        cipher = PKCS1_OAEP.new(public_key)
+        return cipher.encrypt(message)
+
+    def encrypt_message(message, public_key):
+        cipher = PKCS1_OAEP.new(public_key)
+        return cipher.encrypt(message)
+
+    def decrypt_message(ciphertext, private_key):
+        cipher = PKCS1_OAEP.new(private_key)
+        return cipher.decrypt(ciphertext)
+
+    def main():
+        p, q = generate_large_prime()
+        print("Generated primes p and q:", p, q)
+
+        public_key, private_key = generate_keys(p, q)
+
+        message = b"Hello, RSA!"
+        print("Original message:", message)
+
+        encrypted_message = encrypt_message(message, public_key)
+        print("Encrypted message:", encrypted_message.hex())
+
+        decrypted_message = decrypt_message(encrypted_message, private_key)
+        print("Decrypted message:", decrypted_message.decode())
+
+    if __name__ == "__main__":
+        main()
+        
+
+    Generated primes p and q: 163323076987933834810124512326595271222465458546469497024237866386573855940187605832183557373260750466086617454675073060462014929211076049274173502915719971639613495914130723162277462932754790143390084185751064113223459331742589839303752705518627545024875792749413299959182132471155634645427052427439290733519 176733961260424866493590957303567153978462490999473377560801719768553071892161924730804547425022133620423191777056944831687543952427681127380965892133284724068235687879656187173046719320230139486612935640027259523101178326034781164225571092820681284815700373540667223885314992866190929445090418444656316880401
+    Original message: b'Hello, RSA!'
+    Encrypted message: 9f50b6820a2ffaf0e8451b5ada70b5838897275e847a65364c77b1caef76aa3fc882319763cd14c9900d3bc7659a75a7bb98ba09cf4ce4ce84c37f0bb7f6a2deb11df3c5c9bff3810eff0e6f6da1b50be526adf06006bf226648ace70016ee604ef97f3dd7aeb66645793de3913f550c486bb2fa3c0332e52317b8d164d96b96f5c0f3b6279631999989ccfdb5dcf86a6fc823bd2fcaa44be3c828b7975373e7bf46ff939243202ad34dc3dfb6f0a30291fe53760cef20d72c958666ab7aa8b9c63138e5dd57833f06782222660121c3b1642778945145803183fc0e628b8b2b6ceaba593cc90232188834b1f8c4227fdfbab1521eae37b14ebef3ffa4bccd85
+    Decrypted message: Hello, RSA!
